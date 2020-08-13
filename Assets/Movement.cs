@@ -2,21 +2,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Movement : MonoBehaviour
 {
    public int speed = 1;
 
+   public NavMeshAgent navMeshAgent;
+
    private Vector3 movementDirection = new Vector3();
    private Vector3 movementThisFrame = new Vector3();
    private RaycastHit hitInfo = new RaycastHit();
+
+
 
    private Tree tree;
 
    // Start is called before the first frame update
    void Start()
    {
-
+      navMeshAgent = GetComponent<NavMeshAgent>();
    }
 
    // Update is called once per frame
@@ -24,24 +29,31 @@ public class Movement : MonoBehaviour
    {
       //GoToTree();
       GetUserInput();
-      MovePlayerToClick();
+      //MovePlayerToPosition();
    }
    private void GetUserInput()
    {
+      Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
       if(Input.GetMouseButtonDown(0)) {
-         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
          if(Physics.Raycast(ray, out hitInfo)) {
-            movementDirection = hitInfo.point - transform.position;
+            //movementDirection = hitInfo.point - transform.position;
+            navMeshAgent.destination = hitInfo.point;
+            //MovePlayerToPosition();
          }
+      }
+
+      if (navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance) {
+         //navMeshAgent.destination = transform.position;
       }
    }
 
-   private void MovePlayerToClick()
+   private void MovePlayerToPosition()
    {
-      if ()
-      movementThisFrame += new Vector3(movementDirection.x, 0, movementDirection.z) * speed * Time.deltaTime;
-      transform.position = movementThisFrame;
+      float distance = (hitInfo.point - transform.position).magnitude;
+      if(distance > 1) {
+         movementThisFrame += new Vector3(movementDirection.x, 0, movementDirection.z) * speed * Time.deltaTime;
+         transform.position = movementThisFrame;
+      }
    }
 
 
