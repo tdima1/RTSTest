@@ -338,3 +338,8 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/Assets/PolygonStarter
+/Assets/Low_Poly_Mini_Village
+/Assets/Darth_Artisan/Free_Trees
+/Library
+/Temp
