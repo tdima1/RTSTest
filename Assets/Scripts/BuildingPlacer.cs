@@ -34,6 +34,7 @@ public class BuildingPlacer : MonoBehaviour
    private void ReleaseIfClicked()
    {
       if (Input.GetMouseButtonDown(0)) {
+         _currentPlacingObject.GetComponent<MeshCollider>().enabled = true;
          _currentPlacingObject = null;
       }
    }
@@ -54,6 +55,7 @@ public class BuildingPlacer : MonoBehaviour
       if (Input.GetKeyDown(newObjectHotkey)) {
          if (_currentPlacingObject == null) {
             _currentPlacingObject = Instantiate(buildingPrefab);
+            _currentPlacingObject.GetComponent<MeshCollider>().enabled = false;
          } else {
             Destroy(_currentPlacingObject);
          }

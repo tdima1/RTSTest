@@ -14,8 +14,6 @@ public class Movement : MonoBehaviour
    private Vector3 movementThisFrame = new Vector3();
    private RaycastHit hitInfo = new RaycastHit();
 
-
-
    private Tree tree;
 
    // Start is called before the first frame update
@@ -36,9 +34,8 @@ public class Movement : MonoBehaviour
       Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
       if(Input.GetMouseButtonDown(0)) {
          if(Physics.Raycast(ray, out hitInfo)) {
-            //movementDirection = hitInfo.point - transform.position;
-            navMeshAgent.destination = hitInfo.point;
-            //MovePlayerToPosition();
+            //navMeshAgent.destination = hitInfo.point;
+            MovePlayerToPosition();
          }
       }
 
@@ -50,10 +47,11 @@ public class Movement : MonoBehaviour
    private void MovePlayerToPosition()
    {
       float distance = (hitInfo.point - transform.position).magnitude;
-      if(distance > 1) {
+      movementDirection = (hitInfo.point - transform.position).normalized;
+      //if(distance > 1) {
          movementThisFrame += new Vector3(movementDirection.x, 0, movementDirection.z) * speed * Time.deltaTime;
          transform.position = movementThisFrame;
-      }
+      //}
    }
 
 
