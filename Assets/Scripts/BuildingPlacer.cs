@@ -5,8 +5,6 @@ using UnityEngine;
 
 public class BuildingPlacer : MonoBehaviour
 {
-   [SerializeField]
-   private GameObject buildingPrefab;
 
    [SerializeField]
    private KeyCode newObjectHotkey = KeyCode.A;
@@ -54,7 +52,7 @@ public class BuildingPlacer : MonoBehaviour
    {
       if (Input.GetKeyDown(newObjectHotkey)) {
          if (_currentPlacingObject == null) {
-            _currentPlacingObject = Instantiate(buildingPrefab);
+            //_currentPlacingObject = Instantiate(buildingPrefab);
             _currentPlacingObject.GetComponent<MeshCollider>().enabled = false;
          } else {
             Destroy(_currentPlacingObject);

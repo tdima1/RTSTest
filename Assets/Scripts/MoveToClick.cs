@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class MoveToClick : MonoBehaviour
 {
@@ -10,9 +12,11 @@ public class MoveToClick : MonoBehaviour
 
    private Grid grid;
    private RaycastHit hitInfo;
+   private bool isMoving = false;
 
    void Awake()
    {
+      mainCamera = Camera.main;
       grid = GetComponent<Grid>();
    }
 
@@ -23,8 +27,44 @@ public class MoveToClick : MonoBehaviour
          var destination = GetDestinationPoint();
          print(destination);
 
-
+         if(!isMoving) {
+            StartCoroutine(MoveBean(destination));
+         }
       }
+   }
+
+   private IEnumerator MoveBean(Vector3 destination)
+   {
+      while (player.transform.position.x != destination.x || player.transform.position.z != destination.z) {
+         isMoving = true;
+         float moveX, moveZ;
+
+         if (destination.x - player.transform.position.x != 0) {
+            moveX = Mathf.Sign(destination.x - player.transform.position.x);
+         } else {
+            moveX = 0;
+         }
+
+         if (destination.z - player.transform.position.z != 0) {
+            moveZ = Mathf.Sign(destination.z - player.transform.position.z);
+         } else {
+            moveZ = 0;
+         }
+
+         print($"X: {moveX}, Z: {moveZ}");
+
+         var nextPosition = player.transform.position;
+         nextPosition = new Vector3(
+            nextPosition.x + moveX,
+            0,
+            nextPosition.z + moveZ
+            );
+
+         player.transform.position = nextPosition;
+         yield return new WaitForSeconds(0.25f);
+      }
+
+      isMoving = false;
    }
 
    private Vector2Int GetPositionInGrid(Vector3 point)
