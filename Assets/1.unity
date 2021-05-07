@@ -608,6 +608,7 @@ GameObject:
   - component: {fileID: 1870142802}
   - component: {fileID: 1870142801}
   - component: {fileID: 1870142800}
+  - component: {fileID: 1870142803}
   m_Layer: 0
   m_Name: MainCamera
   m_TagString: MainCamera
@@ -646,11 +647,11 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: -55.64
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
-  orthographic size: 5
+  orthographic: 1
+  orthographic size: 7.5
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -673,13 +674,29 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1870142799}
-  m_LocalRotation: {x: 0.28473273, y: 0.33689362, z: -0.10764629, w: 0.8909782}
-  m_LocalPosition: {x: -1.4356768, y: 6.734432, z: -1.5566747}
+  m_LocalRotation: {x: 0.09457185, y: -0.8963997, z: 0.23174126, w: 0.3658139}
+  m_LocalPosition: {x: 1.76, y: 7.12, z: 5.44}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 46.273, y: -135, z: 0.003}
+--- !u!114 &1870142803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1870142799}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e071caac067d1b4fb310b7847dac99a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 1908758646}
+  cameraOffset: {x: 1.76, y: 7.12, z: 5.44}
+  cameraRotationOffset: {x: 28.99, y: -135.6, z: 0}
+  cameraSmoothness: 1
 --- !u!1 &1908758645
 GameObject:
   m_ObjectHideFlags: 0
@@ -722,13 +739,13 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
-  m_Acceleration: 8
+  m_Speed: 500
+  m_Acceleration: 200
   avoidancePriority: 50
   m_AngularSpeed: 120
   m_StoppingDistance: 0
   m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 0
+  m_AutoBraking: 1
   m_AutoRepath: 1
   m_Height: 2
   m_BaseOffset: 0

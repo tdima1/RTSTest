@@ -56,9 +56,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\BuildingPlacer.cs" />
+    <Compile Include="Assets\Scripts\GridCell.cs" />
     <Compile Include="Assets\Scripts\Grid.cs" />
     <Compile Include="Assets\Scripts\MoveToClick.cs" />
-    <Compile Include="Assets\Scripts\GridCell.cs" />
+    <Compile Include="Assets\Scripts\FollowPlayer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

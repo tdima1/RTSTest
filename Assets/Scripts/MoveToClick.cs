@@ -34,11 +34,6 @@ public class MoveToClick : MonoBehaviour
          var positionAsVector3Int = new Vector3Int((int)player.transform.position.x, 0, (int)player.transform.position.z);
          _waypoints = _grid.BreadthFirstSearch(positionAsVector3Int, destination);
          destPointIndex = 0;
-
-
-         //if(!isMoving) {
-         //   StartCoroutine(MoveBean(destination));
-         //}
       }
       if(!player.pathPending && player.remainingDistance < 0.001f && destPointIndex < _waypoints.Count) {
          GotoNextPoint();

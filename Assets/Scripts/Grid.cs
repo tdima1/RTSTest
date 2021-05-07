@@ -44,6 +44,8 @@ public class Grid : MonoBehaviour
 
    public List<Vector3Int> BreadthFirstSearch(Vector3Int start, Vector3Int destination)
    {
+      _visitedPoints = new Dictionary<Vector3Int, Vector3Int>();
+
       if(start.x.Equals(destination.x) && start.z.Equals(destination.z)) {
          return new List<Vector3Int>();
       }
