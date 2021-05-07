@@ -19,11 +19,6 @@ public class FollowPlayer : MonoBehaviour
    [Range(0,1)]
    private float cameraSmoothness;
 
-   private void Start()
-   {
-      //transform.localPosition += new Vector3(0, 0, target.position.z - distance);
-   }
-
    // Update is called once per frame
    void LateUpdate()
    {

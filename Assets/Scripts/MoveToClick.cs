@@ -13,36 +13,47 @@ public class MoveToClick : MonoBehaviour
    private List<Vector3Int> _waypoints = new List<Vector3Int>();
    private int destPointIndex = 0;
 
-   private Grid _grid;
+   private Pathfinding _pathfinding;
    private RaycastHit hitInfo;
-   private bool isMoving = false;
 
    void Awake()
    {
       mainCamera = Camera.main;
-      _grid = GetComponent<Grid>();
+      _pathfinding = GetComponent<Pathfinding>();
    }
 
    // Update is called once per frame
    void Update()
    {
+      WalkToPointOnClick();
+   }
+
+   private void WalkToPointOnClick()
+   {
       if(Input.GetMouseButtonUp(0)) {
          var destination = GetDestinationPoint();
          print(destination);
 
-         int area = NavMesh.GetAreaFromName("Walkable");
-         var isPartofNavMesh = NavMesh.SamplePosition(destination, out NavMeshHit hitInfo, _grid.cellSize, area);
-         print(isPartofNavMesh);
+         //var isPartofNavMesh = NavMesh.SamplePosition(destination, out NavMeshHit hitInfo, _pathfinding.cellSize, navMeshAreaIndex);
+         //print(isPartofNavMesh);
+
+         //Generate proximity matrix...
+         _pathfinding.GenerateProximityMatrix(player.transform.position, destination);
+         //Check for path in matrix...
+
+         //Move through path...
+
+
+
 
          //Pathfinding -> returns list of points....
-         var positionAsVector3Int = new Vector3Int((int)player.transform.position.x, 0, (int)player.transform.position.z);
-         _waypoints = _grid.BreadthFirstSearch(positionAsVector3Int, destination);
-         destPointIndex = 0;
+         //var positionAsVector3Int = new Vector3Int((int)player.transform.position.x, 0, (int)player.transform.position.z);
+         //_waypoints = _grid.BreadthFirstSearch(positionAsVector3Int, destination);
+         //destPointIndex = 0;
       }
       if(!player.pathPending && player.remainingDistance < 0.001f && destPointIndex < _waypoints.Count) {
          GotoNextPoint();
       }
-
    }
 
    void GotoNextPoint()
@@ -59,44 +70,44 @@ public class MoveToClick : MonoBehaviour
       destPointIndex = (destPointIndex + 1);
    }
 
-   private IEnumerator MoveBean(Vector3 destination)
-   {
-      while (player.transform.position.x != destination.x || player.transform.position.z != destination.z) {
-         isMoving = true;
-         float moveX, moveZ;
+   //private IEnumerator MoveBean(Vector3 destination)
+   //{
+   //   while (player.transform.position.x != destination.x || player.transform.position.z != destination.z) {
+   //      isMoving = true;
+   //      float moveX, moveZ;
 
-         if (destination.x - player.transform.position.x != 0) {
-            moveX = Mathf.Sign(destination.x - player.transform.position.x);
-         } else {
-            moveX = 0;
-         }
+   //      if (destination.x - player.transform.position.x != 0) {
+   //         moveX = Mathf.Sign(destination.x - player.transform.position.x);
+   //      } else {
+   //         moveX = 0;
+   //      }
 
-         if (destination.z - player.transform.position.z != 0) {
-            moveZ = Mathf.Sign(destination.z - player.transform.position.z);
-         } else {
-            moveZ = 0;
-         }
+   //      if (destination.z - player.transform.position.z != 0) {
+   //         moveZ = Mathf.Sign(destination.z - player.transform.position.z);
+   //      } else {
+   //         moveZ = 0;
+   //      }
 
-         print($"X: {moveX}, Z: {moveZ}");
+   //      print($"X: {moveX}, Z: {moveZ}");
 
-         var nextPosition = player.transform.position;
-         nextPosition = new Vector3(
-            nextPosition.x + moveX,
-            0,
-            nextPosition.z + moveZ
-            );
+   //      var nextPosition = player.transform.position;
+   //      nextPosition = new Vector3(
+   //         nextPosition.x + moveX,
+   //         0,
+   //         nextPosition.z + moveZ
+   //         );
 
-         player.transform.position = nextPosition;
-         yield return new WaitForSeconds(0.25f);
-      }
+   //      player.transform.position = nextPosition;
+   //      yield return new WaitForSeconds(0.25f);
+   //   }
 
-      isMoving = false;
-   }
+   //   isMoving = false;
+   //}
 
    private Vector2Int GetPositionInGrid(Vector3 point)
    {
-      int gridPosX = Mathf.RoundToInt(point.x / _grid.cellSize);
-      int gridPosZ = Mathf.RoundToInt(point.z / _grid.cellSize);
+      int gridPosX = Mathf.RoundToInt(point.x / _pathfinding.cellSize);
+      int gridPosZ = Mathf.RoundToInt(point.z / _pathfinding.cellSize);
       return new Vector2Int(gridPosX, gridPosZ);
    }
 
@@ -106,7 +117,7 @@ public class MoveToClick : MonoBehaviour
       var mouseWorldPosition = mainCamera.ScreenPointToRay(screenPosition);
 
       Physics.Raycast(mouseWorldPosition, out hitInfo, 100, groundLayer);
-      var positionInGrid = GetPositionInGrid(hitInfo.point) * _grid.cellSize;
+      var positionInGrid = GetPositionInGrid(hitInfo.point) * _pathfinding.cellSize;
 
       hitInfo.point = new Vector3Int(Mathf.FloorToInt(
          positionInGrid.x),
