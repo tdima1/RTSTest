@@ -30,6 +30,10 @@ public class MoveToClick : MonoBehaviour
          var destination = GetDestinationPoint();
          print(destination);
 
+         int area = NavMesh.GetAreaFromName("Walkable");
+         var isPartofNavMesh = NavMesh.SamplePosition(destination, out NavMeshHit hitInfo, _grid.cellSize, area);
+         print(isPartofNavMesh);
+
          //Pathfinding -> returns list of points....
          var positionAsVector3Int = new Vector3Int((int)player.transform.position.x, 0, (int)player.transform.position.z);
          _waypoints = _grid.BreadthFirstSearch(positionAsVector3Int, destination);
@@ -102,7 +106,6 @@ public class MoveToClick : MonoBehaviour
       var mouseWorldPosition = mainCamera.ScreenPointToRay(screenPosition);
 
       Physics.Raycast(mouseWorldPosition, out hitInfo, 100, groundLayer);
-
       var positionInGrid = GetPositionInGrid(hitInfo.point) * _grid.cellSize;
 
       hitInfo.point = new Vector3Int(Mathf.FloorToInt(

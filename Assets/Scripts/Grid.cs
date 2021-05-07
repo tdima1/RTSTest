@@ -16,15 +16,17 @@ public class Grid : MonoBehaviour
 
    private Dictionary<Vector3Int, Vector3Int> _visitedPoints;
 
-   Vector2Int[] _directions = {
-      Vector2Int.up,
-      Vector2Int.right,
-      Vector2Int.down,
-      Vector2Int.left
-   };
+   Vector2Int[] _directions;
 
    void Awake()
    {
+      _directions = new Vector2Int[]{
+         Vector2Int.up * cellSize,
+         Vector2Int.right * cellSize,
+         Vector2Int.down * cellSize,
+         Vector2Int.left * cellSize
+   };
+
       _visitedPoints = new Dictionary<Vector3Int, Vector3Int>();
 
       mainCamera = Camera.main;
@@ -72,6 +74,8 @@ public class Grid : MonoBehaviour
    {
       foreach (var direction in _directions) {
          var neighbour = new Vector3Int(currentPoint.x + direction.x, 0, currentPoint.z + direction.y);
+
+         var isPartofNavMesh = NavMesh.SamplePosition(neighbour, out NavMeshHit hitInfo, cellSize, NavMesh.GetAreaFromName("Not Walkable"));
 
          if(!_visitedPoints.ContainsKey(neighbour)) {
             _visitedPoints.Add(neighbour, currentPoint);
