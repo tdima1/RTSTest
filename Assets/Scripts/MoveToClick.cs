@@ -8,16 +8,19 @@ public class MoveToClick : MonoBehaviour
 {
    public Camera mainCamera;
    public LayerMask groundLayer;
-   public GameObject player;
+   public NavMeshAgent player;
 
-   private Grid grid;
+   private List<Vector3Int> _waypoints = new List<Vector3Int>();
+   private int destPointIndex = 0;
+
+   private Grid _grid;
    private RaycastHit hitInfo;
    private bool isMoving = false;
 
    void Awake()
    {
       mainCamera = Camera.main;
-      grid = GetComponent<Grid>();
+      _grid = GetComponent<Grid>();
    }
 
    // Update is called once per frame
@@ -27,10 +30,34 @@ public class MoveToClick : MonoBehaviour
          var destination = GetDestinationPoint();
          print(destination);
 
-         if(!isMoving) {
-            StartCoroutine(MoveBean(destination));
-         }
+         //Pathfinding -> returns list of points....
+         var positionAsVector3Int = new Vector3Int((int)player.transform.position.x, 0, (int)player.transform.position.z);
+         _waypoints = _grid.BreadthFirstSearch(positionAsVector3Int, destination);
+         destPointIndex = 0;
+
+
+         //if(!isMoving) {
+         //   StartCoroutine(MoveBean(destination));
+         //}
       }
+      if(!player.pathPending && player.remainingDistance < 0.001f && destPointIndex < _waypoints.Count) {
+         GotoNextPoint();
+      }
+
+   }
+
+   void GotoNextPoint()
+   {
+      // Returns if no points have been set up
+      if(_waypoints.Count == 0)
+         return;
+
+      // Set the agent to go to the currently selected destination.
+      player.destination = _waypoints[destPointIndex];
+
+      // Choose the next point in the array as the destination,
+      // cycling to the start if necessary.
+      destPointIndex = (destPointIndex + 1);
    }
 
    private IEnumerator MoveBean(Vector3 destination)
@@ -69,25 +96,28 @@ public class MoveToClick : MonoBehaviour
 
    private Vector2Int GetPositionInGrid(Vector3 point)
    {
-      int gridPosX = Mathf.RoundToInt(point.x / grid.cellSize);
-      int gridPosZ = Mathf.RoundToInt(point.z / grid.cellSize);
+      int gridPosX = Mathf.RoundToInt(point.x / _grid.cellSize);
+      int gridPosZ = Mathf.RoundToInt(point.z / _grid.cellSize);
       return new Vector2Int(gridPosX, gridPosZ);
    }
 
-   private Vector3 GetDestinationPoint()
+   private Vector3Int GetDestinationPoint()
    {
       Vector3 screenPosition = Input.mousePosition;
       var mouseWorldPosition = mainCamera.ScreenPointToRay(screenPosition);
 
       Physics.Raycast(mouseWorldPosition, out hitInfo, 100, groundLayer);
 
-      var positionInGrid = GetPositionInGrid(hitInfo.point) * grid.cellSize;
+      var positionInGrid = GetPositionInGrid(hitInfo.point) * _grid.cellSize;
 
-      hitInfo.point = new Vector3(Mathf.FloorToInt(
+      hitInfo.point = new Vector3Int(Mathf.FloorToInt(
          positionInGrid.x),
-         0.001f,
+         0,
          positionInGrid.y);
 
-      return hitInfo.point;
+      return new Vector3Int(Mathf.FloorToInt(
+         positionInGrid.x),
+         0,
+         positionInGrid.y);
    }
 }
