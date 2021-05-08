@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -36,12 +37,12 @@ public class Pathfinding : MonoBehaviour
       _visitedPoints = new Dictionary<Vector3Int, Vector3Int>();
 
       mainCamera = Camera.main;
-      for (int i = 0; i < gridSize; i++) {
-         for (int j = 0; j < gridSize; j++) {
-            cellPrefab.transform.position = new Vector3(i, 0.001f, j);
-            Instantiate(cellPrefab, GameObject.FindGameObjectWithTag("Grid").transform);
-         }
-      }
+      //for (int i = 0; i < gridSize; i++) {
+      //   for (int j = 0; j < gridSize; j++) {
+      //      cellPrefab.transform.position = new Vector3(i, 0.001f, j);
+      //      Instantiate(cellPrefab, GameObject.FindGameObjectWithTag("Grid").transform);
+      //   }
+      //}
    }
 
    public void GenerateProximityMatrix(Vector3 playerPosition, Vector3Int destination)
@@ -59,22 +60,43 @@ public class Pathfinding : MonoBehaviour
 
       //int downYBoundary = (playerPlaneCoords.y - _maxProximityOfDestination) * cellSize;
       //int upYBoundary = (playerPlaneCoords.y + _maxProximityOfDestination) * cellSize;
+      string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+      //using(StreamWriter file = new StreamWriter(Path.Combine(docPath, "matrix.txt"), append: true)) {
 
-      for(int i = -_maxProximityOfDestination; i <= _maxProximityOfDestination; i++) {
-         for(int j = -_maxProximityOfDestination; j <= _maxProximityOfDestination; j++) {
+         for(int i = -_maxProximityOfDestination; i <= _maxProximityOfDestination; i++) {
+            for(int j = -_maxProximityOfDestination; j <= _maxProximityOfDestination; j++) {
 
-            Vector3Int positionToSample = new Vector3Int(i * cellSize, 0, j * cellSize);
+               Vector3Int positionToSample = new Vector3Int(playerPlaneCoords.x + i * cellSize, 0, playerPlaneCoords.y + j * cellSize);
 
-            var a = Physics.Raycast(new Vector3(i * cellSize, 100f, j * cellSize), Vector3.down, out RaycastHit rayHitInfo, groundLayer);
+               //var a = Physics.Raycast(new Vector3(i * cellSize, 100f, j * cellSize), Vector3.down, out RaycastHit rayHitInfo, groundLayer);
 
-            var areaMaskFromName =  NavMesh.GetAreaFromName("Not C");
-            bool sampleResult = NavMesh.SamplePosition(positionToSample, out NavMeshHit hitInfo, 0.5f, NavMesh.AllAreas);
+               var areaMaskFromName = NavMesh.GetAreaFromName("Not C");
+               bool sampleResult = NavMesh.SamplePosition(positionToSample, out NavMeshHit hitInfo, 0.1f, NavMesh.AllAreas);
 
-            print(sampleResult);
+               print(sampleResult);
 
-            movementRangeMatrix[i + _maxProximityOfDestination, j + _maxProximityOfDestination] = new GridCell(hitInfo.position, hitInfo.position.y, sampleResult);
+               Vector3 hitInfoIntPosition = new Vector3(Mathf.RoundToInt(hitInfo.position.x), hitInfo.position.y, Mathf.RoundToInt(hitInfo.position.z));
+
+               var cell = new GridCell(hitInfoIntPosition, hitInfo.position.y, sampleResult);
+               movementRangeMatrix[i + _maxProximityOfDestination, j + _maxProximityOfDestination] = cell;
+
+
+               cellPrefab.transform.position = cell.worldPosition;
+               Instantiate(cellPrefab, GameObject.FindGameObjectWithTag("Grid").transform);
+
+               //if(cell.isWalkable) {
+               //   file.Write("1");
+               //} else {
+               //   file.Write("0");
+               //}
+            }
+            //file.WriteLine();
          }
-      }
+
+         //file.WriteLine();
+         //file.Close();
+      //}
+
    }
 
 
