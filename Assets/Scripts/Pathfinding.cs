@@ -61,8 +61,8 @@ public class Pathfinding : MonoBehaviour
 
             Vector3Int positionToSample = new Vector3Int(playerPlaneCoords.x + i * cellSize, 100, playerPlaneCoords.y + j * cellSize);
 
-            var a = Physics.Raycast(positionToSample, Vector3.down, out RaycastHit rayHitInfo, groundLayer);
-            bool inRangeOfObstacle = Physics.CheckSphere(rayHitInfo.point, cellSize, obstaclesLayer);
+            var a = Physics.Raycast(positionToSample, Vector3.down, out RaycastHit rayHitInfo, groundLayer | obstaclesLayer);
+            bool inRangeOfObstacle = Physics.CheckSphere(rayHitInfo.point + 1.4f * Vector3.up, cellSize * 0.6f, obstaclesLayer);
 
             if(!inRangeOfObstacle) {
                Vector3 hitInfoIntPosition = new Vector3(Mathf.RoundToInt(rayHitInfo.point.x), rayHitInfo.point.y + 0.01f, Mathf.RoundToInt(rayHitInfo.point.z));
