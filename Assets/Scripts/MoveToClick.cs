@@ -33,10 +33,6 @@ public class MoveToClick : MonoBehaviour
       if(Input.GetMouseButtonUp(0)) {
          var destination = GetDestinationPoint();
          print(destination);
-
-         //var isPartofNavMesh = NavMesh.SamplePosition(destination, out NavMeshHit hitInfo, _pathfinding.cellSize, navMeshAreaIndex);
-         //print(isPartofNavMesh);
-
          //Generate proximity matrix...
          _pathfinding.GenerateProximityMatrix(player.transform.position, destination);
          //Check for path in matrix...

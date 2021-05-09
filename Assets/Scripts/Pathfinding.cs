@@ -13,6 +13,7 @@ public class Pathfinding : MonoBehaviour
    public int cellSize = 1;
    public int gridSize = 10;
    public LayerMask groundLayer;
+   public LayerMask obstaclesLayer;
 
    public GameObject cellPrefab;
 
@@ -55,48 +56,25 @@ public class Pathfinding : MonoBehaviour
 
       Vector2Int playerPlaneCoords = new Vector2Int((int)playerPosition.x, (int)playerPosition.z);
 
-      //int leftXBoundary = (playerPlaneCoords.x - _maxProximityOfDestination) * cellSize;
-      //int rightXBoundary = (playerPlaneCoords.x + _maxProximityOfDestination) * cellSize;
+      for(int i = -_maxProximityOfDestination; i <= _maxProximityOfDestination; i++) {
+         for(int j = -_maxProximityOfDestination; j <= _maxProximityOfDestination; j++) {
 
-      //int downYBoundary = (playerPlaneCoords.y - _maxProximityOfDestination) * cellSize;
-      //int upYBoundary = (playerPlaneCoords.y + _maxProximityOfDestination) * cellSize;
-      string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-      //using(StreamWriter file = new StreamWriter(Path.Combine(docPath, "matrix.txt"), append: true)) {
+            Vector3Int positionToSample = new Vector3Int(playerPlaneCoords.x + i * cellSize, 100, playerPlaneCoords.y + j * cellSize);
 
-         for(int i = -_maxProximityOfDestination; i <= _maxProximityOfDestination; i++) {
-            for(int j = -_maxProximityOfDestination; j <= _maxProximityOfDestination; j++) {
+            var a = Physics.Raycast(positionToSample, Vector3.down, out RaycastHit rayHitInfo, groundLayer);
+            bool inRangeOfObstacle = Physics.CheckSphere(rayHitInfo.point, cellSize, obstaclesLayer);
 
-               Vector3Int positionToSample = new Vector3Int(playerPlaneCoords.x + i * cellSize, 0, playerPlaneCoords.y + j * cellSize);
+            if(!inRangeOfObstacle) {
+               Vector3 hitInfoIntPosition = new Vector3(Mathf.RoundToInt(rayHitInfo.point.x), rayHitInfo.point.y + 0.01f, Mathf.RoundToInt(rayHitInfo.point.z));
 
-               //var a = Physics.Raycast(new Vector3(i * cellSize, 100f, j * cellSize), Vector3.down, out RaycastHit rayHitInfo, groundLayer);
-
-               var areaMaskFromName = NavMesh.GetAreaFromName("Not C");
-               bool sampleResult = NavMesh.SamplePosition(positionToSample, out NavMeshHit hitInfo, 0.1f, NavMesh.AllAreas);
-
-               print(sampleResult);
-
-               Vector3 hitInfoIntPosition = new Vector3(Mathf.RoundToInt(hitInfo.position.x), hitInfo.position.y, Mathf.RoundToInt(hitInfo.position.z));
-
-               var cell = new GridCell(hitInfoIntPosition, hitInfo.position.y, sampleResult);
+               var cell = new GridCell(hitInfoIntPosition, hitInfoIntPosition.y, !inRangeOfObstacle);
                movementRangeMatrix[i + _maxProximityOfDestination, j + _maxProximityOfDestination] = cell;
-
 
                cellPrefab.transform.position = cell.worldPosition;
                Instantiate(cellPrefab, GameObject.FindGameObjectWithTag("Grid").transform);
-
-               //if(cell.isWalkable) {
-               //   file.Write("1");
-               //} else {
-               //   file.Write("0");
-               //}
             }
-            //file.WriteLine();
          }
-
-         //file.WriteLine();
-         //file.Close();
-      //}
-
+      }
    }
 
 
