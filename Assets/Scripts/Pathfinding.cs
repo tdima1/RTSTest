@@ -38,12 +38,6 @@ public class Pathfinding : MonoBehaviour
       _visitedPoints = new Dictionary<Vector3Int, Vector3Int>();
 
       mainCamera = Camera.main;
-      //for (int i = 0; i < gridSize; i++) {
-      //   for (int j = 0; j < gridSize; j++) {
-      //      cellPrefab.transform.position = new Vector3(i, 0.001f, j);
-      //      Instantiate(cellPrefab, GameObject.FindGameObjectWithTag("Grid").transform);
-      //   }
-      //}
    }
 
    public void GenerateProximityMatrix(Vector3 playerPosition, Vector3Int destination)
@@ -61,18 +55,28 @@ public class Pathfinding : MonoBehaviour
 
             Vector3Int positionToSample = new Vector3Int(playerPlaneCoords.x + i * cellSize, 100, playerPlaneCoords.y + j * cellSize);
 
-            var a = Physics.Raycast(positionToSample, Vector3.down, out RaycastHit rayHitInfo, groundLayer | obstaclesLayer);
-            bool inRangeOfObstacle = Physics.CheckSphere(rayHitInfo.point + 1.4f * Vector3.up, cellSize * 0.6f, obstaclesLayer);
+            var groundHit = Physics.Raycast(positionToSample, Vector3.down, out RaycastHit rayHitInfo, groundLayer);
 
-            if(!inRangeOfObstacle) {
+            if(groundHit) {
+               bool inRangeOfObstacle = Physics.CheckSphere(rayHitInfo.point + Vector3.up, cellSize * 0.6f, obstaclesLayer);
+
+               if(inRangeOfObstacle) {
+                  //var hitObstacle = Physics.Raycast(positionToSample, Vector3.down, out rayHitInfo, obstaclesLayer);
+                  inRangeOfObstacle = Physics.CheckSphere(rayHitInfo.point, cellSize, obstaclesLayer);
+               }
+
                Vector3 hitInfoIntPosition = new Vector3(Mathf.RoundToInt(rayHitInfo.point.x), rayHitInfo.point.y + 0.01f, Mathf.RoundToInt(rayHitInfo.point.z));
 
                var cell = new GridCell(hitInfoIntPosition, hitInfoIntPosition.y, !inRangeOfObstacle);
                movementRangeMatrix[i + _maxProximityOfDestination, j + _maxProximityOfDestination] = cell;
 
                cellPrefab.transform.position = cell.worldPosition;
-               Instantiate(cellPrefab, GameObject.FindGameObjectWithTag("Grid").transform);
+               if(cell.isWalkable) {
+                  Instantiate(cellPrefab, GameObject.FindGameObjectWithTag("Grid").transform);
+               }
             }
+
+
          }
       }
    }
