@@ -27,8 +27,9 @@ public class MoveToClick : MonoBehaviour
    private void WalkToPointOnClick()
    {
       if(Input.GetMouseButtonUp(0)) {
+         var destination = _pathfinding.GetDestinationPoint();
          //Generate proximity matrix...
-         _pathfinding.GenerateProximityMatrix(Vector3Int.FloorToInt(player.transform.position));
+         _pathfinding.GenerateProximityMatrix(Vector3Int.FloorToInt(player.transform.position), Vector3Int.FloorToInt(destination));
          //Check for path in matrix...
 
          //Move through path...

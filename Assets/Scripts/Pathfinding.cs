@@ -14,18 +14,24 @@ public class Pathfinding : MonoBehaviour
 {
    public Camera mainCamera;
    public int CellSize = 1;
-   public int GridSize = 10;
    public LayerMask GroundLayer;
    public LayerMask ObstaclesLayer;
+   public bool UseDiagonals = true;
 
    public Grid<GridCell> Grid { get; set; }
 
    [SerializeField]
    private GameObject cellPrefab;
+   [SerializeField]
+   private GameObject pathCellPrefab;
 
    private Dictionary<Vector3Int, Vector3Int> _visitedPoints;
 
    private Vector2Int[] _directions;
+
+   private Vector2Int[] _directionsWithDiagonals;
+   private Vector2Int[] _directionsNoDiagonals;
+   private int GridSize;
    private int _maxProximityOfDestination = 10;
 
 
@@ -33,13 +39,20 @@ public class Pathfinding : MonoBehaviour
 
    void Awake()
    {
-      _directions = new Vector2Int[]{
+      _directionsWithDiagonals = new Vector2Int[]{
          Vector2Int.up * CellSize,
          (Vector2Int.up + Vector2Int.right) * CellSize,
          (Vector2Int.up + Vector2Int.left) * CellSize,
          Vector2Int.down * CellSize,
          (Vector2Int.down + Vector2Int.right) * CellSize,
          (Vector2Int.down + Vector2Int.left) * CellSize,
+         Vector2Int.right * CellSize,
+         Vector2Int.left * CellSize,
+      };
+
+      _directionsNoDiagonals = new Vector2Int[]{
+         Vector2Int.up * CellSize,
+         Vector2Int.down * CellSize,
          Vector2Int.right * CellSize,
          Vector2Int.left * CellSize,
       };
@@ -51,24 +64,21 @@ public class Pathfinding : MonoBehaviour
       worldCells = new List<GameObject>();
    }
 
-   public void GenerateProximityMatrix(Vector3Int playerPosition)
+   public void GenerateProximityMatrix(Vector3Int playerPosition, Vector3Int destination)
    {
-      var destination = GetDestinationPoint();
+      if(Vector3.Distance(playerPosition, destination) <= 2 * _maxProximityOfDestination) {
+         GridSize = 2 * _maxProximityOfDestination + 1;
 
-      Grid = new Grid<GridCell>(2 * _maxProximityOfDestination + 1, CellSize);
+         Grid = new Grid<GridCell>(GridSize, CellSize);
 
-      BuildProximityMatrix(playerPosition);
+         BuildProximityMatrix(playerPosition);
 
-      AStar(new Vector3Int());
+         AStar(destination);
+      }
    }
 
    private void BuildProximityMatrix(Vector3Int playerPosition)
    {
-      var destination = GetDestinationPoint();
-
-      if(Vector3.Distance(playerPosition, destination) > _maxProximityOfDestination) {
-         return;
-      }
       Vector2Int playerPlaneCoords = new Vector2Int(playerPosition.x, playerPosition.z);
 
       for(int i = -_maxProximityOfDestination; i <= _maxProximityOfDestination; i++) {
@@ -76,7 +86,7 @@ public class Pathfinding : MonoBehaviour
 
             Vector3Int raySourcePosition = new Vector3Int(playerPlaneCoords.x + i * CellSize, 100, playerPlaneCoords.y + j * CellSize);
 
-            var groundHit = Physics.Raycast(raySourcePosition, Vector3.down, out RaycastHit rayHitInfo, 100, GroundLayer | ObstaclesLayer);
+            var groundHit = Physics.Raycast(raySourcePosition, Vector3.down, out RaycastHit rayHitInfo, 120, GroundLayer | ObstaclesLayer);
 
             if(groundHit) {
                bool inRangeOfObstacle = Physics.CheckSphere(rayHitInfo.point + Vector3.up, CellSize * 0.5f, ObstaclesLayer);
@@ -95,6 +105,7 @@ public class Pathfinding : MonoBehaviour
                x.SetMaterialColor(Color.black);
 
                if(cell.IsWalkable) {
+
                   worldCells.Add(Instantiate(worldCell, GameObject.FindGameObjectWithTag("Grid").transform));
                }
             }
@@ -107,13 +118,22 @@ public class Pathfinding : MonoBehaviour
       GridCell startCell = Grid.GetElementAtGridPosition(_maxProximityOfDestination, _maxProximityOfDestination);
       print($"Start cell: {startCell.worldPosition}");
 
-      var destinationGridPosition = GetGridPosition(destination.x, destination.z);
-      GridCell destinationCell = Grid.GetElementAtGridPosition(destinationGridPosition.x, destinationGridPosition.y);
+      int destinationGridPositionX = Mathf.FloorToInt(startCell.GridPosition.x - (startCell.worldPosition.x - destination.x));
+      int destinationGridPositionY = Mathf.FloorToInt(startCell.GridPosition.y - (startCell.worldPosition.z - destination.z));
+
+      GridCell destinationCell = Grid.GetElementAtGridPosition(destinationGridPositionX, destinationGridPositionY);
+      print($"Destination cell: {destinationCell.worldPosition}");
 
       List<GridCell> openSet = new List<GridCell> {
          startCell,
       };
       List<GridCell> closedSet = new List<GridCell>();
+
+      if(UseDiagonals) {
+         _directions = _directionsWithDiagonals;
+      } else {
+         _directions = _directionsNoDiagonals;
+      }
 
       startCell.gCost = 0;
       startCell.hCost = CalculateDistanceCost(startCell, destinationCell);
@@ -121,7 +141,7 @@ public class Pathfinding : MonoBehaviour
 
       while (openSet.Count > 0) {
          GridCell currentCell = GetLowestFCostNode(openSet);
-         if (currentCell == destinationCell) {
+         if (currentCell.GridPosition == destinationCell.GridPosition) {
             return CalculatePath(destinationCell);
          }
 
@@ -152,9 +172,8 @@ public class Pathfinding : MonoBehaviour
          }
       }
 
+      print("NO PATH FOUND...");
       return new List<GridCell>();
-
-
    }
 
    private List<GridCell> CalculatePath(GridCell destinationCell)
@@ -165,9 +184,21 @@ public class Pathfinding : MonoBehaviour
 
       while (currentCell.previousCell != null) {
          result.Add(currentCell.previousCell);
+
          currentCell = currentCell.previousCell;
       }
       result.Reverse();
+
+      foreach (var cell in result) {
+         GameObject worldCell = pathCellPrefab;
+         worldCell.transform.position = cell.worldPosition;
+         var x = worldCell.GetComponent<CellCustomization>();
+         x.SetMaterialColor(Color.red);
+
+         if(cell.IsWalkable) {
+            worldCells.Add(Instantiate(worldCell, GameObject.FindGameObjectWithTag("Grid").transform));
+         }
+      }
 
       return result;
    }
@@ -197,16 +228,15 @@ public class Pathfinding : MonoBehaviour
    }
 
 
+   //private Vector3Int GetWorldPosition(int x, int y, int z)
+   //{
+   //   return new Vector3Int(x, y, z) * CellSize;
+   //}
 
-   private Vector3Int GetWorldPosition(int x, int y, int z)
-   {
-      return new Vector3Int(x, y, z) * CellSize;
-   }
-
-   private Vector2Int GetGridPosition(int x, int y)
-   {
-      return new Vector2Int(x, y) / CellSize;
-   }
+   //private Vector3Int GetGridCell(int x, int y)
+   //{
+   //   return new Vector3Int(x, 0, y) / CellSize;
+   //}
 
    private int CalculateDistanceCost(GridCell current, GridCell next)
    {
@@ -219,10 +249,25 @@ public class Pathfinding : MonoBehaviour
    private List<GridCell> ExploreNeighbours(GridCell currentCell)
    {
       var result = new List<GridCell>();
+
       foreach(var direction in _directions) {
          var neighbourGridPosition = currentCell.GridPosition + direction;
+         var neighbourCell = Grid.GetElementAtGridPosition(neighbourGridPosition.x, neighbourGridPosition.y);
 
-         result.Add(Grid.GetElementAtGridPosition(neighbourGridPosition.x, neighbourGridPosition.y));
+         if(neighbourCell != null && IsValidNeighbour(currentCell, neighbourCell)) {
+            result.Add(neighbourCell);
+         }
+      }
+
+      return result;
+   }
+
+   private bool IsValidNeighbour(GridCell currentCell, GridCell neighbourCell)
+   {
+      bool result = false;
+      if(neighbourCell.IsWalkable &&
+         Mathf.Abs(currentCell.Height - neighbourCell.Height) < 1.5f) {
+         result = true;
       }
 
       return result;
@@ -230,14 +275,13 @@ public class Pathfinding : MonoBehaviour
 
    public Vector3Int GetPositionInGrid(Vector3 point)
    {
-
       int gridPosX = Mathf.RoundToInt(point.x / CellSize);
       int gridPosY = Mathf.RoundToInt(point.y / CellSize);
       int gridPosZ = Mathf.RoundToInt(point.z / CellSize);
       return new Vector3Int(gridPosX, gridPosY, gridPosZ);
    }
 
-   private Vector3Int GetDestinationPoint()
+   public Vector3Int GetDestinationPoint()
    {
       Vector3 screenPosition = Input.mousePosition;
       var mouseWorldPosition = mainCamera.ScreenPointToRay(screenPosition);
@@ -248,19 +292,15 @@ public class Pathfinding : MonoBehaviour
       hitInfo.point = new Vector3Int(Mathf.FloorToInt(
          positionInGrid.x),
          positionInGrid.y,
-         positionInGrid.y);
+         positionInGrid.z);
 
       print(hitInfo.point);
 
       return new Vector3Int(Mathf.FloorToInt(
          positionInGrid.x),
          0,
-         positionInGrid.y);
+         positionInGrid.z);
    }
-
-
-
-
 
 
    public List<Vector3Int> BreadthFirstSearch(Vector3Int start, Vector3Int destination)
