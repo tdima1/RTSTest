@@ -14,6 +14,7 @@ public class Pathfinding : MonoBehaviour
 {
    public Camera mainCamera;
    public int CellSize = 1;
+   public int MaxProximityOfDestination = 10;
    public LayerMask GroundLayer;
    public LayerMask ObstaclesLayer;
    public bool UseDiagonals = true;
@@ -32,7 +33,6 @@ public class Pathfinding : MonoBehaviour
    private Vector2Int[] _directionsWithDiagonals;
    private Vector2Int[] _directionsNoDiagonals;
    private int GridSize;
-   private int _maxProximityOfDestination = 10;
 
 
    private List<GameObject> worldCells;
@@ -66,23 +66,23 @@ public class Pathfinding : MonoBehaviour
 
    public void GenerateProximityMatrix(Vector3Int playerPosition, Vector3Int destination)
    {
-      if(Vector3.Distance(playerPosition, destination) <= 2 * _maxProximityOfDestination) {
-         GridSize = 2 * _maxProximityOfDestination + 1;
-
-         Grid = new Grid<GridCell>(GridSize, CellSize);
-
-         BuildProximityMatrix(playerPosition);
-
-         AStar(destination);
+      foreach (var cell in worldCells) {
+         Destroy(cell);
       }
+
+      GridSize = 2 * MaxProximityOfDestination + 1;
+
+      Grid = new Grid<GridCell>(GridSize, CellSize);
+
+      BuildProximityMatrix(playerPosition);
    }
 
    private void BuildProximityMatrix(Vector3Int playerPosition)
    {
       Vector2Int playerPlaneCoords = new Vector2Int(playerPosition.x, playerPosition.z);
 
-      for(int i = -_maxProximityOfDestination; i <= _maxProximityOfDestination; i++) {
-         for(int j = -_maxProximityOfDestination; j <= _maxProximityOfDestination; j++) {
+      for(int i = -MaxProximityOfDestination; i <= MaxProximityOfDestination; i++) {
+         for(int j = -MaxProximityOfDestination; j <= MaxProximityOfDestination; j++) {
 
             Vector3Int raySourcePosition = new Vector3Int(playerPlaneCoords.x + i * CellSize, 100, playerPlaneCoords.y + j * CellSize);
 
@@ -92,7 +92,7 @@ public class Pathfinding : MonoBehaviour
                bool inRangeOfObstacle = Physics.CheckSphere(rayHitInfo.point + Vector3.up, CellSize * 0.5f, ObstaclesLayer);
 
                Vector3 worldPosition = new Vector3(rayHitInfo.point.x, rayHitInfo.point.y + 0.01f, rayHitInfo.point.z);
-               Vector2Int gridPosition = new Vector2Int(i + _maxProximityOfDestination, j + _maxProximityOfDestination);
+               Vector2Int gridPosition = new Vector2Int(i + MaxProximityOfDestination, j + MaxProximityOfDestination);
 
                GridCell cell = BuildGridCell(inRangeOfObstacle, worldPosition, gridPosition);
 
@@ -105,7 +105,6 @@ public class Pathfinding : MonoBehaviour
                x.SetMaterialColor(Color.black);
 
                if(cell.IsWalkable) {
-
                   worldCells.Add(Instantiate(worldCell, GameObject.FindGameObjectWithTag("Grid").transform));
                }
             }
@@ -115,14 +114,14 @@ public class Pathfinding : MonoBehaviour
 
    public List<GridCell> AStar(Vector3Int destination)
    {
-      GridCell startCell = Grid.GetElementAtGridPosition(_maxProximityOfDestination, _maxProximityOfDestination);
-      print($"Start cell: {startCell.worldPosition}");
+      GridCell startCell = Grid.GetElementAtGridPosition(MaxProximityOfDestination, MaxProximityOfDestination);
+      //print($"Start cell: {startCell.worldPosition}");
 
       int destinationGridPositionX = Mathf.FloorToInt(startCell.GridPosition.x - (startCell.worldPosition.x - destination.x));
       int destinationGridPositionY = Mathf.FloorToInt(startCell.GridPosition.y - (startCell.worldPosition.z - destination.z));
 
       GridCell destinationCell = Grid.GetElementAtGridPosition(destinationGridPositionX, destinationGridPositionY);
-      print($"Destination cell: {destinationCell.worldPosition}");
+      //print($"Destination cell: {destinationCell.worldPosition}");
 
       List<GridCell> openSet = new List<GridCell> {
          startCell,
@@ -301,49 +300,4 @@ public class Pathfinding : MonoBehaviour
          0,
          positionInGrid.z);
    }
-
-
-   public List<Vector3Int> BreadthFirstSearch(Vector3Int start, Vector3Int destination)
-   {
-      _visitedPoints = new Dictionary<Vector3Int, Vector3Int>();
-
-      if(start.x.Equals(destination.x) && start.z.Equals(destination.z)) {
-         return new List<Vector3Int>();
-      }
-
-      Queue<Vector3Int> queue = new Queue<Vector3Int>();
-      queue.Enqueue(start);
-      
-      while (queue.Count > 0) {
-         Vector3Int currentPoint = queue.Dequeue();
-         
-         if(currentPoint.x.Equals(destination.x) && currentPoint.z.Equals(destination.z)) {
-            return BacktrackPath(start, destination);
-         } else {
-            //_visitedPoints.Add(currentPoint, true);
-            //ExploreNeighbours(currentPoint, queue);
-         }
-      }
-
-      //No Path found
-      return new List<Vector3Int>();
-   }
-
-
-   private List<Vector3Int> BacktrackPath(Vector3Int start, Vector3Int destination)
-   {
-      var tracker = destination;
-
-      List<Vector3Int> path = new List<Vector3Int>();
-
-      while(!tracker.Equals(start)) {
-         path.Add(tracker);
-         tracker = _visitedPoints[tracker];
-      }
-      path.Add(start);
-      path.Reverse();
-
-      return path;
-   }
-
 }
