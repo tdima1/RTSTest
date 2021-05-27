@@ -64,12 +64,17 @@ public class MoveToClick : MonoBehaviour
 
          while ((cell.worldPosition - player.position).magnitude > 0.1f) {
 
-            if (Mathf.Approximately(cell.worldPosition.x, player.position.x)) {
-               movement.z = Mathf.Sign(cell.worldPosition.z - player.position.z);
+            //movement.z = Math.Sign(cell.worldPosition.z - player.position.z);
+            //movement.x = Math.Sign(cell.worldPosition.x - player.position.x);
+
+            if(Mathf.Approximately(cell.worldPosition.x, player.position.x)) {
+               movement.x = Mathf.RoundToInt(movement.x);
+               movement.z = Math.Sign(cell.worldPosition.z - player.position.z);
             }
 
             if(Mathf.Approximately(cell.worldPosition.z, player.position.z)) {
-               movement.x = Mathf.Sign(cell.worldPosition.x - player.position.x);
+               movement.z = Mathf.RoundToInt(movement.z);
+               movement.x = Math.Sign(cell.worldPosition.x - player.position.x);
             }
 
             player.transform.Translate(movement * 3 * Time.deltaTime);

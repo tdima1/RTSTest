@@ -81,33 +81,38 @@ public class Pathfinding : MonoBehaviour
    {
       Vector2Int playerPlaneCoords = new Vector2Int(playerPosition.x, playerPosition.z);
 
-      for(int i = -MaxProximityOfDestination; i <= MaxProximityOfDestination; i++) {
-         for(int j = -MaxProximityOfDestination; j <= MaxProximityOfDestination; j++) {
+      for(int i = 0; i <= GridSize / 2; i++) {
+         for(int j = GridSize / 2 - i; j <= GridSize / 2 + i; j++) {
 
-            Vector3Int raySourcePosition = new Vector3Int(playerPlaneCoords.x + i * CellSize, 100, playerPlaneCoords.y + j * CellSize);
+            SetGridCell(playerPlaneCoords, i, j);
+            SetGridCell(playerPlaneCoords, GridSize - i - 1, j);
+         }
+      }
+   }
 
-            var groundHit = Physics.Raycast(raySourcePosition, Vector3.down, out RaycastHit rayHitInfo, 120, GroundLayer | ObstaclesLayer);
+   private void SetGridCell(Vector2Int playerPlaneCoords, int i, int j)
+   {
+      Vector3Int raySourcePosition = new Vector3Int(playerPlaneCoords.x + (i - MaxProximityOfDestination) * CellSize, 100, playerPlaneCoords.y + (j - MaxProximityOfDestination) * CellSize);
 
-            if(groundHit) {
-               bool inRangeOfObstacle = Physics.CheckSphere(rayHitInfo.point + Vector3.up, CellSize * 0.7f, ObstaclesLayer);
+      var groundHit = Physics.Raycast(raySourcePosition, Vector3.down, out RaycastHit rayHitInfo, 120, GroundLayer | ObstaclesLayer);
 
-               Vector3 worldPosition = new Vector3(rayHitInfo.point.x, rayHitInfo.point.y + 0.01f, rayHitInfo.point.z);
-               Vector2Int gridPosition = new Vector2Int(i + MaxProximityOfDestination, j + MaxProximityOfDestination);
+      if(groundHit) {
+         bool inRangeOfObstacle = Physics.CheckSphere(rayHitInfo.point + Vector3.up, CellSize * 0.7f, ObstaclesLayer);
 
-               GridCell cell = BuildGridCell(inRangeOfObstacle, worldPosition, gridPosition);
+         Vector3 worldPosition = new Vector3(rayHitInfo.point.x, rayHitInfo.point.y + 0.01f, rayHitInfo.point.z);
+         Vector2Int gridPosition = new Vector2Int(i, j);
 
-               Grid.SetElementAtGridPosition(gridPosition.x, gridPosition.y, cell);
+         GridCell cell = BuildGridCell(inRangeOfObstacle, worldPosition, gridPosition);
 
+         Grid.SetElementAtGridPosition(gridPosition.x, gridPosition.y, cell);
 
-               GameObject worldCell = cellPrefab;
-               worldCell.transform.position = cell.worldPosition;
-               var x = worldCell.GetComponent<CellCustomization>();
-               x.SetMaterialColor(Color.black);
+         GameObject worldCell = cellPrefab;
+         worldCell.transform.position = cell.worldPosition;
+         var x = worldCell.GetComponent<CellCustomization>();
+         x.SetMaterialColor(Color.black);
 
-               if(cell.IsWalkable) {
-                  worldCells.Add(Instantiate(worldCell, GameObject.FindGameObjectWithTag("Grid").transform));
-               }
-            }
+         if(cell.IsWalkable) {
+            worldCells.Add(Instantiate(worldCell, GameObject.FindGameObjectWithTag("Grid").transform));
          }
       }
    }
