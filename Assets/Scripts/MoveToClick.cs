@@ -27,12 +27,15 @@ public class MoveToClick : MonoBehaviour
 
    private void WalkToPointOnClick()
    {
-      if(Input.GetMouseButtonUp(0)) {
+      if(Input.GetMouseButtonDown(0) && !isMoving) {
+
          var destination = _pathfinding.GetDestinationPoint();
 
          if(Vector3.Distance(Vector3Int.FloorToInt(player.transform.position), destination) <= 2 * _pathfinding.MaxProximityOfDestination &&
             Mathf.Abs(Vector3Int.FloorToInt(player.transform.position).x - destination.x) < _pathfinding.MaxProximityOfDestination &&
             Mathf.Abs(Vector3Int.FloorToInt(player.transform.position).z - destination.z) < _pathfinding.MaxProximityOfDestination) {
+
+            isMoving = true;
 
             //Generate proximity matrix...
             _pathfinding.GenerateProximityMatrix(Vector3Int.FloorToInt(player.transform.position), Vector3Int.FloorToInt(destination));
@@ -42,6 +45,7 @@ public class MoveToClick : MonoBehaviour
 
             //Move through path...
             StartCoroutine("MoveThroughPath", path);
+
          } else {
             print("Distance too long...");
          }
@@ -51,11 +55,33 @@ public class MoveToClick : MonoBehaviour
 
    private IEnumerator MoveThroughPath(List<GridCell> path)
    {
+      var snapToGrid = player.GetComponent<SnapToGrid>();
+      snapToGrid.enabled = false;
+
+      Vector3 movement = Vector3.zero;
+
       foreach(var cell in path) {
 
-         player.transform.position = Vector3.MoveTowards(player.transform.position, cell.worldPosition, 500 * Time.deltaTime);
+         while ((cell.worldPosition - player.position).magnitude > 0.1f) {
 
-         yield return new WaitForSeconds(0.25f);
+            if (Mathf.Approximately(cell.worldPosition.x, player.position.x)) {
+               movement.z = Mathf.Sign(cell.worldPosition.z - player.position.z);
+            }
+
+            if(Mathf.Approximately(cell.worldPosition.z, player.position.z)) {
+               movement.x = Mathf.Sign(cell.worldPosition.x - player.position.x);
+            }
+
+            player.transform.Translate(movement * 3 * Time.deltaTime);
+
+            yield return new WaitForFixedUpdate();
+         }
+
+
+         //player.transform.position = Vector3.MoveTowards(player.transform.position, cell.worldPosition, 500 * Time.deltaTime);
       }
+
+      snapToGrid.enabled = true;
+      isMoving = false;
    }
 }

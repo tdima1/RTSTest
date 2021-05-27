@@ -89,7 +89,7 @@ public class Pathfinding : MonoBehaviour
             var groundHit = Physics.Raycast(raySourcePosition, Vector3.down, out RaycastHit rayHitInfo, 120, GroundLayer | ObstaclesLayer);
 
             if(groundHit) {
-               bool inRangeOfObstacle = Physics.CheckSphere(rayHitInfo.point + Vector3.up, CellSize * 0.5f, ObstaclesLayer);
+               bool inRangeOfObstacle = Physics.CheckSphere(rayHitInfo.point + Vector3.up, CellSize * 0.7f, ObstaclesLayer);
 
                Vector3 worldPosition = new Vector3(rayHitInfo.point.x, rayHitInfo.point.y + 0.01f, rayHitInfo.point.z);
                Vector2Int gridPosition = new Vector2Int(i + MaxProximityOfDestination, j + MaxProximityOfDestination);
