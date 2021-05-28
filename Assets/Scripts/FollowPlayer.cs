@@ -22,12 +22,9 @@ public class FollowPlayer : MonoBehaviour
    // Update is called once per frame
    void LateUpdate()
    {
-      //transform.LookAt(target);
-      //transform.rotation = Quaternion.Euler(new Vector3(45, 0, 0));  // 90 degress on the X axis - change appropriately
-      //transform.rotation = Quaternion.LookRotation(target.position - transform.position, Vector3.up);
       Vector3 cameraPosition = target.position + cameraOffset;
-      Vector3 smoothCameraPosition = Vector3.Lerp(transform.position, cameraPosition, cameraSmoothness);
-      transform.position = smoothCameraPosition;
+      Vector3 smoothCameraPosition = Vector3.Lerp(transform.localPosition, cameraPosition, cameraSmoothness);
+      transform.localPosition = smoothCameraPosition;
 
       Quaternion cameraRotation = Quaternion.Euler(cameraRotationOffset);
       transform.rotation = cameraRotation;

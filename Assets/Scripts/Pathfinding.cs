@@ -120,13 +120,16 @@ public class Pathfinding : MonoBehaviour
    public List<GridCell> AStar(Vector3Int destination)
    {
       GridCell startCell = Grid.GetElementAtGridPosition(MaxProximityOfDestination, MaxProximityOfDestination);
-      //print($"Start cell: {startCell.worldPosition}");
 
-      int destinationGridPositionX = Mathf.FloorToInt(startCell.GridPosition.x - (startCell.worldPosition.x - destination.x));
-      int destinationGridPositionY = Mathf.FloorToInt(startCell.GridPosition.y - (startCell.worldPosition.z - destination.z));
+      int destinationGridPositionX = startCell.GridPosition.x - (Mathf.RoundToInt(startCell.worldPosition.x) - destination.x);
+      int destinationGridPositionY = startCell.GridPosition.y - (Mathf.RoundToInt(startCell.worldPosition.z) - destination.z);
 
       GridCell destinationCell = Grid.GetElementAtGridPosition(destinationGridPositionX, destinationGridPositionY);
-      //print($"Destination cell: {destinationCell.worldPosition}");
+
+      if (destinationCell == null) {
+         print("DESTINATION OUTSIDE RANGE...");
+         return new List<GridCell>();
+      }
 
       List<GridCell> openSet = new List<GridCell> {
          startCell,
@@ -176,6 +179,7 @@ public class Pathfinding : MonoBehaviour
          }
       }
 
+
       print("NO PATH FOUND...");
       return new List<GridCell>();
    }
@@ -222,7 +226,6 @@ public class Pathfinding : MonoBehaviour
    private GridCell BuildGridCell(bool inRangeOfObstacle, Vector3 worldPosition, Vector2Int gridPosition)
    {
       var cell = new GridCell(worldPosition, worldPosition.y, !inRangeOfObstacle) {
-         worldPosition = worldPosition,
          GridPosition = gridPosition,
          gCost = int.MaxValue,
          previousCell = null,

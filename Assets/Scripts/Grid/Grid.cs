@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
-
-namespace Assets.Scripts.Grid
+﻿namespace Assets.Scripts.Grid
 {
    public class Grid<TGridObject> where TGridObject : class
    {
