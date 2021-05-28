@@ -87,18 +87,24 @@ public class MoveToClick : MonoBehaviour
       Vector3 movement = Vector3.zero;
 
       foreach(var cell in path) {
+         snapToGrid.enabled = false;
 
          while ((cell.worldPosition - player.position).magnitude > 0.1f) {
 
-            //if(Mathf.Approximately(cell.worldPosition.x, player.position.x)) {
-            //   movement.x = 0;
-            //   movement.z = Math.Sign(cell.worldPosition.z - player.position.z);
-            //} else {
-            //   movement.z = 0;
-            //   movement.x = Math.Sign(cell.worldPosition.x - player.position.x);
-            //}
-            movement.z = Math.Sign(cell.worldPosition.z - player.position.z);
-            movement.x = Math.Sign(cell.worldPosition.x - player.position.x);
+            if(Mathf.Abs(cell.worldPosition.x - player.position.x) < 0.05f) {
+               movement.z = Math.Sign(cell.worldPosition.z - player.position.z);
+               movement.x = 0;
+
+
+            } else if (Mathf.Abs(cell.worldPosition.z - player.position.z) < 0.05f) {
+               movement.x = Math.Sign(cell.worldPosition.x - player.position.x);
+               movement.z = 0;
+
+
+            }
+
+            //movement.z = Math.Sign(cell.worldPosition.z - player.position.z);
+            //movement.x = Math.Sign(cell.worldPosition.x - player.position.x);
 
             player.position += movement * movementSpeed * Time.deltaTime;
 
@@ -106,6 +112,7 @@ public class MoveToClick : MonoBehaviour
             yield return new WaitForFixedUpdate();
          }
 
+         snapToGrid.enabled = true;
 
          //player.transform.position = Vector3.MoveTowards(player.transform.position, cell.worldPosition, 500 * Time.deltaTime);
       }

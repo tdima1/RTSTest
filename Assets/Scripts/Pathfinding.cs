@@ -127,7 +127,7 @@ public class Pathfinding : MonoBehaviour
       GridCell destinationCell = Grid.GetElementAtGridPosition(destinationGridPositionX, destinationGridPositionY);
 
       if (destinationCell == null) {
-         print("DESTINATION OUTSIDE RANGE...");
+         print("DESTINATION OUTSIDE RANGE ...");
          return new List<GridCell>();
       }
 
