@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
-using System.Linq;
 using Assets.Scripts.Grid;
 using Assets.Scripts.Grid.Constants;
 
@@ -64,7 +59,7 @@ public class Pathfinding : MonoBehaviour
       worldCells = new List<GameObject>();
    }
 
-   public void GenerateProximityMatrix(Vector3Int playerPosition, Vector3Int destination)
+   public void GenerateProximityMatrix(Vector3Int playerPosition)
    {
       foreach (var cell in worldCells) {
          Destroy(cell);
@@ -77,22 +72,88 @@ public class Pathfinding : MonoBehaviour
       BuildProximityMatrix(playerPosition);
    }
 
-   private void BuildProximityMatrix(Vector3Int playerPosition)
+   public List<GridCell> AStar(Vector3Int destination)
    {
-      Vector2Int playerPlaneCoords = new Vector2Int(playerPosition.x, playerPosition.z);
+      GridCell startCell = Grid.GetElementAtGridPosition(MaxProximityOfDestination, MaxProximityOfDestination);
+
+      int destinationGridPositionX = startCell.GridPosition.x - (Mathf.RoundToInt(startCell.worldPosition.x) - destination.x);
+      int destinationGridPositionY = startCell.GridPosition.y - (Mathf.RoundToInt(startCell.worldPosition.z) - destination.z);
+
+      GridCell destinationCell = Grid.GetElementAtGridPosition(destinationGridPositionX, destinationGridPositionY);
+
+      if(destinationCell == null) {
+         print("DESTINATION OUTSIDE RANGE ...");
+         return new List<GridCell>();
+      }
+
+      List<GridCell> openSet = new List<GridCell> {
+         startCell,
+      };
+      List<GridCell> closedSet = new List<GridCell>();
+
+      if(UseDiagonals) {
+         _directions = _directionsWithDiagonals;
+      } else {
+         _directions = _directionsNoDiagonals;
+      }
+
+      startCell.gCost = 0;
+      startCell.hCost = CalculateDistanceCost(startCell, destinationCell);
+      startCell.CalculateFCost();
+
+      while(openSet.Count > 0) {
+         GridCell currentCell = GetLowestFCostNode(openSet);
+         if(currentCell.GridPosition == destinationCell.GridPosition) {
+            return CalculatePath(destinationCell);
+         }
+
+         openSet.Remove(currentCell);
+         closedSet.Add(currentCell);
+
+         var neighbourCells = ExploreNeighbours(currentCell);
+
+         foreach(var neighbourCell in neighbourCells) {
+            if(neighbourCell != null) {
+
+               if(closedSet.Contains(neighbourCell)) {
+                  continue;
+               }
+
+               int tentativeGCost = currentCell.gCost + CalculateDistanceCost(currentCell, neighbourCell);
+               if(tentativeGCost < neighbourCell.gCost) {
+                  neighbourCell.previousCell = currentCell;
+                  neighbourCell.gCost = tentativeGCost;
+                  neighbourCell.hCost = CalculateDistanceCost(neighbourCell, destinationCell);
+                  neighbourCell.CalculateFCost();
+
+                  if(!openSet.Contains(neighbourCell)) {
+                     openSet.Add(neighbourCell);
+                  }
+               }
+            }
+         }
+      }
+
+      print("NO PATH FOUND...");
+      return new List<GridCell>();
+   }
+
+   private void BuildProximityMatrix(Vector3Int unitPosition)
+   {
+      Vector2Int unitPlanePosition = new Vector2Int(unitPosition.x, unitPosition.z);
 
       for(int i = 0; i <= GridSize / 2; i++) {
          for(int j = GridSize / 2 - i; j <= GridSize / 2 + i; j++) {
 
-            SetGridCell(playerPlaneCoords, i, j);
-            SetGridCell(playerPlaneCoords, GridSize - i - 1, j);
+            SetGridCell(unitPlanePosition, i, j);
+            SetGridCell(unitPlanePosition, GridSize - i - 1, j);
          }
       }
    }
 
-   private void SetGridCell(Vector2Int playerPlaneCoords, int i, int j)
+   private void SetGridCell(Vector2Int unitCoords, int i, int j)
    {
-      Vector3Int raySourcePosition = new Vector3Int(playerPlaneCoords.x + (i - MaxProximityOfDestination) * CellSize, 100, playerPlaneCoords.y + (j - MaxProximityOfDestination) * CellSize);
+      Vector3Int raySourcePosition = new Vector3Int(unitCoords.x + (i - MaxProximityOfDestination) * CellSize, 100, unitCoords.y + (j - MaxProximityOfDestination) * CellSize);
 
       var groundHit = Physics.Raycast(raySourcePosition, Vector3.down, out RaycastHit rayHitInfo, 120, GroundLayer | ObstaclesLayer);
 
@@ -115,73 +176,6 @@ public class Pathfinding : MonoBehaviour
             worldCells.Add(Instantiate(worldCell, GameObject.FindGameObjectWithTag("Grid").transform));
          }
       }
-   }
-
-   public List<GridCell> AStar(Vector3Int destination)
-   {
-      GridCell startCell = Grid.GetElementAtGridPosition(MaxProximityOfDestination, MaxProximityOfDestination);
-
-      int destinationGridPositionX = startCell.GridPosition.x - (Mathf.RoundToInt(startCell.worldPosition.x) - destination.x);
-      int destinationGridPositionY = startCell.GridPosition.y - (Mathf.RoundToInt(startCell.worldPosition.z) - destination.z);
-
-      GridCell destinationCell = Grid.GetElementAtGridPosition(destinationGridPositionX, destinationGridPositionY);
-
-      if (destinationCell == null) {
-         print("DESTINATION OUTSIDE RANGE ...");
-         return new List<GridCell>();
-      }
-
-      List<GridCell> openSet = new List<GridCell> {
-         startCell,
-      };
-      List<GridCell> closedSet = new List<GridCell>();
-
-      if(UseDiagonals) {
-         _directions = _directionsWithDiagonals;
-      } else {
-         _directions = _directionsNoDiagonals;
-      }
-
-      startCell.gCost = 0;
-      startCell.hCost = CalculateDistanceCost(startCell, destinationCell);
-      startCell.CalculateFCost();
-
-      while (openSet.Count > 0) {
-         GridCell currentCell = GetLowestFCostNode(openSet);
-         if (currentCell.GridPosition == destinationCell.GridPosition) {
-            return CalculatePath(destinationCell);
-         }
-
-         openSet.Remove(currentCell);
-         closedSet.Add(currentCell);
-
-         var neighbourCells = ExploreNeighbours(currentCell);
-
-         foreach (var neighbourCell in neighbourCells) {
-            if (neighbourCell != null) {
-
-               if(closedSet.Contains(neighbourCell)) {
-                  continue;
-               }
-
-               int tentativeGCost = currentCell.gCost + CalculateDistanceCost(currentCell, neighbourCell);
-               if(tentativeGCost < neighbourCell.gCost) {
-                  neighbourCell.previousCell = currentCell;
-                  neighbourCell.gCost = tentativeGCost;
-                  neighbourCell.hCost = CalculateDistanceCost(neighbourCell, destinationCell);
-                  neighbourCell.CalculateFCost();
-
-                  if(!openSet.Contains(neighbourCell)) {
-                     openSet.Add(neighbourCell);
-                  }
-               }
-            }
-         }
-      }
-
-
-      print("NO PATH FOUND...");
-      return new List<GridCell>();
    }
 
    private List<GridCell> CalculatePath(GridCell destinationCell)
@@ -234,17 +228,6 @@ public class Pathfinding : MonoBehaviour
       return cell;
    }
 
-
-   //private Vector3Int GetWorldPosition(int x, int y, int z)
-   //{
-   //   return new Vector3Int(x, y, z) * CellSize;
-   //}
-
-   //private Vector3Int GetGridCell(int x, int y)
-   //{
-   //   return new Vector3Int(x, 0, y) / CellSize;
-   //}
-
    private int CalculateDistanceCost(GridCell current, GridCell next)
    {
       int xDistance = Mathf.Abs(current.GridPosition.x - next.GridPosition.x);
@@ -253,6 +236,7 @@ public class Pathfinding : MonoBehaviour
 
       return Constants.DiagonalLineCost * Mathf.Min(xDistance, zDistance) + Constants.StraightLineCost * remaining;
    }
+
    private List<GridCell> ExploreNeighbours(GridCell currentCell)
    {
       var result = new List<GridCell>();
@@ -278,34 +262,5 @@ public class Pathfinding : MonoBehaviour
       }
 
       return result;
-   }
-
-   public Vector3Int GetPositionInGrid(Vector3 point)
-   {
-      int gridPosX = Mathf.RoundToInt(point.x / CellSize);
-      int gridPosY = Mathf.RoundToInt(point.y / CellSize);
-      int gridPosZ = Mathf.RoundToInt(point.z / CellSize);
-      return new Vector3Int(gridPosX, gridPosY, gridPosZ);
-   }
-
-   public Vector3Int GetDestinationPoint()
-   {
-      Vector3 screenPosition = Input.mousePosition;
-      var mouseWorldPosition = mainCamera.ScreenPointToRay(screenPosition);
-
-      Physics.Raycast(mouseWorldPosition, out RaycastHit hitInfo, GroundLayer);
-      var positionInGrid = GetPositionInGrid(hitInfo.point) * CellSize;
-
-      hitInfo.point = new Vector3Int(Mathf.FloorToInt(
-         positionInGrid.x),
-         positionInGrid.y,
-         positionInGrid.z);
-
-      print(hitInfo.point);
-
-      return new Vector3Int(Mathf.FloorToInt(
-         positionInGrid.x),
-         0,
-         positionInGrid.z);
    }
 }

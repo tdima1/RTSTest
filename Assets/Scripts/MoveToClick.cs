@@ -3,12 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.AI;
 
 public class MoveToClick : MonoBehaviour
 {
    public Camera mainCamera;
-   public LayerMask groundLayer;
+   public LayerMask GroundLayer;
    public Transform player;
 
    private Pathfinding _pathfinding;
@@ -25,7 +24,7 @@ public class MoveToClick : MonoBehaviour
    void Awake()
    {
       mainCamera = Camera.main;
-      _pathfinding = GetComponent<Pathfinding>();
+      _pathfinding = player.GetComponent<Pathfinding>();
    }
 
    // Update is called once per frame
@@ -45,8 +44,8 @@ public class MoveToClick : MonoBehaviour
                               $"Selected Cell X: {Mathf.RoundToInt(path[path.Count - 1].worldPosition.x)}" + "\n" +
                               $"Selected Cell Y: {Mathf.RoundToInt(path[path.Count - 1].worldPosition.z)}" + "\n\n" +
 
-                              $"Destination Cell X: {_pathfinding.GetDestinationPoint().x}" + "\n" +
-                              $"Destination Cell Y: {_pathfinding.GetDestinationPoint().z}";
+                              $"Destination Cell X: {GetDestinationPoint().x}" + "\n" +
+                              $"Destination Cell Y: {GetDestinationPoint().z}";
       }
    }
 
@@ -54,7 +53,7 @@ public class MoveToClick : MonoBehaviour
    {
       if(!isMoving) {
 
-         var destination = _pathfinding.GetDestinationPoint();
+         var destination = GetDestinationPoint();
 
          int distanceX = Vector3Int.FloorToInt(player.transform.position).x - destination.x;
          int distanceZ = Vector3Int.FloorToInt(player.transform.position).z - destination.z;
@@ -62,7 +61,7 @@ public class MoveToClick : MonoBehaviour
          if((distanceX + distanceZ) <= _pathfinding.MaxProximityOfDestination) {
 
             //Generate proximity matrix...
-            _pathfinding.GenerateProximityMatrix(Vector3Int.FloorToInt(player.transform.position), Vector3Int.FloorToInt(destination));
+            _pathfinding.GenerateProximityMatrix(Vector3Int.FloorToInt(player.transform.position));
 
             //Check for path in matrix...
             path = _pathfinding.AStar(destination);
@@ -120,4 +119,22 @@ public class MoveToClick : MonoBehaviour
       snapToGrid.enabled = true;
       isMoving = false;
    }
+
+
+   private Vector3Int GetDestinationPoint()
+   {
+      Vector3 screenPosition = Input.mousePosition;
+      var mouseWorldPosition = mainCamera.ScreenPointToRay(screenPosition);
+
+      Physics.Raycast(mouseWorldPosition, out RaycastHit hitInfo, GroundLayer);
+
+      var destination = new Vector3Int(
+         Mathf.RoundToInt(hitInfo.point.x),
+         Mathf.RoundToInt(hitInfo.point.y),
+         Mathf.RoundToInt(hitInfo.point.z));
+
+      print(destination);
+      return destination;
+   }
+
 }

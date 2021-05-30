@@ -323,7 +323,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 404420317}
-  - component: {fileID: 404420316}
   - component: {fileID: 404420318}
   m_Layer: 0
   m_Name: ScreenPointSelector
@@ -332,32 +331,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &404420316
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 404420315}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 09d7e87b5e0bcb447a4e31a3146a4695, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mainCamera: {fileID: 1870142801}
-  CellSize: 1
-  MaxProximityOfDestination: 10
-  GroundLayer:
-    serializedVersion: 2
-    m_Bits: 512
-  ObstaclesLayer:
-    serializedVersion: 2
-    m_Bits: 256
-  UseDiagonals: 0
-  cellPrefab: {fileID: 6611114042615878379, guid: 662843c256bc0644bb47de9c43acbc6c,
-    type: 3}
-  pathCellPrefab: {fileID: 4341845357040181310, guid: 0349791b2c04e744095829f47fe10e6d,
-    type: 3}
 --- !u!4 &404420317
 Transform:
   m_ObjectHideFlags: 0
@@ -384,8 +357,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b327148c3e8359d43ad1f5be9a900532, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainCamera: {fileID: 0}
-  groundLayer:
+  mainCamera: {fileID: 1870142801}
+  GroundLayer:
     serializedVersion: 2
     m_Bits: 512
   player: {fileID: 1908758646}
@@ -716,7 +689,7 @@ GameObject:
   m_Component:
   - component: {fileID: 891907260}
   m_Layer: 0
-  m_Name: Labels
+  m_Name: UI - Labels
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1694,7 +1667,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1870142799}
   m_LocalRotation: {x: 0.16172902, y: -0.83731925, z: 0.39044842, w: 0.346829}
-  m_LocalPosition: {x: 13, y: 32, z: 21}
+  m_LocalPosition: {x: 14, y: 32, z: 21}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -1726,6 +1699,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1908758646}
   - component: {fileID: 1908758647}
+  - component: {fileID: 1908758648}
   m_Layer: 0
   m_Name: PlayerPrefab
   m_TagString: Untagged
@@ -1741,7 +1715,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1908758645}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4, y: 0, z: 4}
+  m_LocalPosition: {x: -3, y: 0, z: 4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 283888873}
@@ -1760,13 +1734,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b20480671469d05459d62a93ce4cb216, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _pathfinding: {fileID: 404420316}
-  _obstacleLayer:
-    serializedVersion: 2
-    m_Bits: 256
-  _groundLayer:
+  _pathfinding: {fileID: 0}
+  CellSize: 1
+--- !u!114 &1908758648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1908758645}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09d7e87b5e0bcb447a4e31a3146a4695, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainCamera: {fileID: 1870142801}
+  CellSize: 1
+  MaxProximityOfDestination: 10
+  GroundLayer:
     serializedVersion: 2
     m_Bits: 512
+  ObstaclesLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  UseDiagonals: 0
+  cellPrefab: {fileID: 6611114042615878379, guid: 662843c256bc0644bb47de9c43acbc6c,
+    type: 3}
+  pathCellPrefab: {fileID: 4341845357040181310, guid: 0349791b2c04e744095829f47fe10e6d,
+    type: 3}
 --- !u!1 &1917968246
 GameObject:
   m_ObjectHideFlags: 0

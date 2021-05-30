@@ -7,11 +7,8 @@ public class SnapToGrid : MonoBehaviour
 {
    [SerializeField]
    private Pathfinding _pathfinding;
-
    [SerializeField]
-   private LayerMask _obstacleLayer;
-   [SerializeField]
-   private LayerMask _groundLayer;
+   private float CellSize = 1;
 
    // Update is called once per frame
    void Update()
@@ -21,7 +18,10 @@ public class SnapToGrid : MonoBehaviour
 
    private void SnapObjectToGrid()
    {
-      var positionInGrid = _pathfinding.GetPositionInGrid(transform.position);
+      int gridPosX = Mathf.RoundToInt(transform.position.x / CellSize);
+      int gridPosY = Mathf.RoundToInt(transform.position.y / CellSize);
+      int gridPosZ = Mathf.RoundToInt(transform.position.z / CellSize);
+      var positionInGrid = new Vector3Int(gridPosX, gridPosY, gridPosZ);
 
       transform.position = positionInGrid;
    }
