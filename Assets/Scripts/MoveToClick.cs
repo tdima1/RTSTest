@@ -120,7 +120,6 @@ public class MoveToClick : MonoBehaviour
       isMoving = false;
    }
 
-
    private Vector3Int GetDestinationPoint()
    {
       Vector3 screenPosition = Input.mousePosition;

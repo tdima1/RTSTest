@@ -7,7 +7,6 @@ using Assets.Scripts.Grid.Constants;
 //[SelectionBase]
 public class Pathfinding : MonoBehaviour
 {
-   public Camera mainCamera;
    public int CellSize = 1;
    public int MaxProximityOfDestination = 10;
    public LayerMask GroundLayer;
@@ -20,8 +19,6 @@ public class Pathfinding : MonoBehaviour
    private GameObject cellPrefab;
    [SerializeField]
    private GameObject pathCellPrefab;
-
-   private Dictionary<Vector3Int, Vector3Int> _visitedPoints;
 
    private Vector2Int[] _directions;
 
@@ -52,14 +49,10 @@ public class Pathfinding : MonoBehaviour
          Vector2Int.left * CellSize,
       };
 
-      _visitedPoints = new Dictionary<Vector3Int, Vector3Int>();
-
-      mainCamera = Camera.main;
-
       worldCells = new List<GameObject>();
    }
 
-   public void GenerateProximityMatrix(Vector3Int playerPosition)
+   public void GenerateProximityMatrix(Vector3Int unitPosition)
    {
       foreach (var cell in worldCells) {
          Destroy(cell);
@@ -69,7 +62,7 @@ public class Pathfinding : MonoBehaviour
 
       Grid = new Grid<GridCell>(GridSize, CellSize);
 
-      BuildProximityMatrix(playerPosition);
+      BuildProximityMatrix(unitPosition);
    }
 
    public List<GridCell> AStar(Vector3Int destination)
