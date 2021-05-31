@@ -6,11 +6,8 @@ using UnityEngine;
 public class SnapToGrid : MonoBehaviour
 {
    [SerializeField]
-   private Pathfinding _pathfinding;
-   [SerializeField]
    private float CellSize = 1;
 
-   // Update is called once per frame
    void Update()
    {
       SnapObjectToGrid();
@@ -19,9 +16,9 @@ public class SnapToGrid : MonoBehaviour
    private void SnapObjectToGrid()
    {
       int gridPosX = Mathf.RoundToInt(transform.position.x / CellSize);
-      int gridPosY = Mathf.RoundToInt(transform.position.y / CellSize);
+      float gridPosY = transform.position.y;
       int gridPosZ = Mathf.RoundToInt(transform.position.z / CellSize);
-      var positionInGrid = new Vector3Int(gridPosX, gridPosY, gridPosZ);
+      var positionInGrid = new Vector3(gridPosX, gridPosY, gridPosZ);
 
       transform.position = positionInGrid;
    }

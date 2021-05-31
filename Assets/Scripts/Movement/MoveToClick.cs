@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Scripts.Movement;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -59,7 +60,7 @@ public class MoveToClick : MonoBehaviour
          int distanceZ = Vector3Int.FloorToInt(player.transform.position).z - destination.z;
 
          if((distanceX + distanceZ) <= _pathfinding.MaxProximityOfDestination) {
-
+            
             //Generate proximity matrix...
             _pathfinding.GenerateProximityMatrix(Vector3Int.FloorToInt(player.transform.position));
 
@@ -69,7 +70,7 @@ public class MoveToClick : MonoBehaviour
             //Move through path...
             if(Input.GetMouseButtonDown(0)) {
                isMoving = true;
-               StartCoroutine("MoveThroughPath", path);
+               StartCoroutine(MoveThroughPath(path));
             }
 
          } else {
@@ -98,12 +99,13 @@ public class MoveToClick : MonoBehaviour
             } else if (Mathf.Abs(cell.worldPosition.z - player.position.z) < 0.05f) {
                movement.x = Math.Sign(cell.worldPosition.x - player.position.x);
                movement.z = 0;
-
-
             }
 
-            //movement.z = Math.Sign(cell.worldPosition.z - player.position.z);
-            //movement.x = Math.Sign(cell.worldPosition.x - player.position.x);
+            if (Mathf.Abs(cell.Height - player.position.y) < 0.05f) {
+               movement.y = 0;
+            } else {
+               movement.y = Math.Sign(cell.Height - player.position.y);
+            }
 
             player.position += movement * movementSpeed * Time.deltaTime;
 
@@ -112,8 +114,6 @@ public class MoveToClick : MonoBehaviour
          }
 
          snapToGrid.enabled = true;
-
-         //player.transform.position = Vector3.MoveTowards(player.transform.position, cell.worldPosition, 500 * Time.deltaTime);
       }
 
       snapToGrid.enabled = true;
@@ -135,5 +135,4 @@ public class MoveToClick : MonoBehaviour
       print(destination);
       return destination;
    }
-
 }

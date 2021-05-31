@@ -11,6 +11,7 @@ public class Pathfinding : MonoBehaviour
    public int MaxProximityOfDestination = 10;
    public LayerMask GroundLayer;
    public LayerMask ObstaclesLayer;
+   public LayerMask TreeLayer;
    public bool UseDiagonals = true;
 
    public Grid<GridCell> Grid { get; set; }
@@ -151,7 +152,7 @@ public class Pathfinding : MonoBehaviour
       var groundHit = Physics.Raycast(raySourcePosition, Vector3.down, out RaycastHit rayHitInfo, 120, GroundLayer | ObstaclesLayer);
 
       if(groundHit) {
-         bool inRangeOfObstacle = Physics.CheckSphere(rayHitInfo.point + Vector3.up, CellSize * 0.7f, ObstaclesLayer);
+         bool inRangeOfObstacle = Physics.CheckSphere(rayHitInfo.point + Vector3.up, CellSize * 0.7f, ObstaclesLayer | TreeLayer);
 
          Vector3 worldPosition = new Vector3(rayHitInfo.point.x, rayHitInfo.point.y + 0.01f, rayHitInfo.point.z);
          Vector2Int gridPosition = new Vector2Int(i, j);
@@ -162,11 +163,9 @@ public class Pathfinding : MonoBehaviour
 
          GameObject worldCell = cellPrefab;
          worldCell.transform.position = cell.worldPosition;
-         var x = worldCell.GetComponent<CellCustomization>();
-         x.SetMaterialColor(Color.black);
 
          if(cell.IsWalkable) {
-            worldCells.Add(Instantiate(worldCell, GameObject.FindGameObjectWithTag("Grid").transform));
+            //worldCells.Add(Instantiate(worldCell, GameObject.FindGameObjectWithTag("Grid").transform));
          }
       }
    }
@@ -187,8 +186,6 @@ public class Pathfinding : MonoBehaviour
       foreach (var cell in result) {
          GameObject worldCell = pathCellPrefab;
          worldCell.transform.position = cell.worldPosition;
-         var x = worldCell.GetComponent<CellCustomization>();
-         x.SetMaterialColor(Color.red);
 
          if(cell.IsWalkable) {
             worldCells.Add(Instantiate(worldCell, GameObject.FindGameObjectWithTag("Grid").transform));

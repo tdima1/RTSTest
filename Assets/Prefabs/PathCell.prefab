@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 8591675974242545829}
   - component: {fileID: 1414485282626375236}
   - component: {fileID: 7168122187285996788}
-  - component: {fileID: 4533213187433240663}
   - component: {fileID: 8183420998783017032}
   m_Layer: 0
   m_Name: PathCell
@@ -28,7 +27,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4341845357040181310}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.00000014808029, y: 0.01, z: 0.00000010430813}
+  m_LocalPosition: {x: 0.9999999, y: 0, z: 1.9999999}
   m_LocalScale: {x: 0.098, y: 1, z: 0.098}
   m_Children: []
   m_Father: {fileID: 0}
@@ -83,20 +82,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &4533213187433240663
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4341845357040181310}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!114 &8183420998783017032
 MonoBehaviour:
   m_ObjectHideFlags: 0
