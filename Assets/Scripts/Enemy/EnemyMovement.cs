@@ -66,33 +66,18 @@ namespace Assets.Scripts.Enemy
          foreach(var cell in path) {
             snapToGrid.enabled = false;
 
-            while((cell.worldPosition - unit.position).magnitude > 0.1f) {
+            var movementThisFrame = movementSpeed * Time.fixedDeltaTime;
 
-               if(Mathf.Abs(cell.worldPosition.x - unit.position.x) < 0.05f) {
-                  movement.z = Math.Sign(cell.worldPosition.z - unit.position.z);
-                  movement.x = 0;
+            while((cell.worldPosition - unit.position).magnitude > movementThisFrame) {
 
-
-               } else if(Mathf.Abs(cell.worldPosition.z - unit.position.z) < 0.05f) {
-                  movement.x = Math.Sign(cell.worldPosition.x - unit.position.x);
-                  movement.z = 0;
-               }
-
-               if(Mathf.Abs(cell.Height - unit.position.y) < 0.1f) {
-                  movement.y = 0;
-               } else {
-                  movement.y = Math.Sign(cell.Height - unit.position.y);
-               }
-
-               unit.position += movement * movementSpeed * Time.deltaTime;
+               unit.position += (cell.worldPosition - unit.position).normalized * movementThisFrame;
 
                yield return new WaitForFixedUpdate();
             }
-
             snapToGrid.enabled = true;
          }
 
-         yield return new WaitForSeconds(5f);
+         yield return new WaitForSecondsRealtime(2f);
 
          snapToGrid.enabled = true;
          isMoving = false;
