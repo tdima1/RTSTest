@@ -61,8 +61,6 @@ namespace Assets.Scripts.Enemy
          var snapToGrid = unit.GetComponent<SnapToGrid>();
          snapToGrid.enabled = false;
 
-         Vector3 movement = Vector3.zero;
-
          foreach(var cell in path) {
             snapToGrid.enabled = false;
 

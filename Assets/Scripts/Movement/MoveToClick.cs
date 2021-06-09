@@ -84,31 +84,14 @@ public class MoveToClick : MonoBehaviour
       var snapToGrid = player.GetComponent<SnapToGrid>();
       snapToGrid.enabled = false;
 
-      Vector3 movement = Vector3.zero;
-
       foreach(var cell in path) {
          snapToGrid.enabled = false;
 
-         while ((cell.worldPosition - player.position).magnitude > 0.1f) {
+         var movementThisFrame = movementSpeed * Time.fixedDeltaTime;
 
-            if(Mathf.Abs(cell.worldPosition.x - player.position.x) < 0.05f) {
-               movement.z = Math.Sign(cell.worldPosition.z - player.position.z);
-               movement.x = 0;
+         while ((cell.worldPosition - player.position).magnitude > movementThisFrame) {
 
-
-            } else if (Mathf.Abs(cell.worldPosition.z - player.position.z) < 0.05f) {
-               movement.x = Math.Sign(cell.worldPosition.x - player.position.x);
-               movement.z = 0;
-            }
-
-            if (Mathf.Abs(cell.Height - player.position.y) < 0.05f) {
-               movement.y = 0;
-            } else {
-               movement.y = Math.Sign(cell.Height - player.position.y);
-            }
-
-            player.position += movement * movementSpeed * Time.deltaTime;
-
+            player.position += (cell.worldPosition - player.position).normalized * movementThisFrame;
 
             yield return new WaitForFixedUpdate();
          }
