@@ -115,7 +115,7 @@ public class MoveToClick : MonoBehaviour
          Mathf.RoundToInt(hitInfo.point.y),
          Mathf.RoundToInt(hitInfo.point.z));
 
-      print(destination);
+      //print(destination);
       return destination;
    }
 }
