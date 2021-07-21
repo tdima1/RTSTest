@@ -12,7 +12,7 @@
    {
       [SerializeField] private Camera mainCamera;
 
-      private GameObject lastHitEnemy;
+      private GameObject lastSelectedUnit;
 
       private void Awake()
       {
@@ -21,26 +21,40 @@
 
       private void Update()
       {
+         SelectUnit();
+
+         UnitOnClick();
+      }
+
+      private void UnitOnClick()
+      {
+         if (Input.GetMouseButtonDown(0) && lastSelectedUnit != null) {
+            var unitMeshRenderer = lastSelectedUnit.GetComponentInChildren<MeshRenderer>();
+
+            unitMeshRenderer.material.color = Color.red;
+         }
+      }
+
+      private void SelectUnit()
+      {
          Outline enemyOutline;
 
          Vector3 screenPosition = Input.mousePosition;
          var mouseWorldPosition = mainCamera.ScreenPointToRay(screenPosition);
          Physics.Raycast(mouseWorldPosition, out RaycastHit hitInfo);
 
-         if (hitInfo.collider.name == "Enemy") {
+         if(hitInfo.collider.name == "Enemy") {
 
-            lastHitEnemy = hitInfo.transform.parent.gameObject;
+            lastSelectedUnit = hitInfo.transform.parent.gameObject;
 
-            enemyOutline = lastHitEnemy.GetComponent<Outline>();
+            enemyOutline = lastSelectedUnit.GetComponent<Outline>();
             enemyOutline.enabled = true;
 
          } else {
-            enemyOutline = lastHitEnemy.GetComponent<Outline>();
+            enemyOutline = lastSelectedUnit.GetComponent<Outline>();
             enemyOutline.enabled = false;
-
+            lastSelectedUnit = null;
          }
-
-
       }
    }
 }

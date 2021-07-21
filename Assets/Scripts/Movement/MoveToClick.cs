@@ -11,7 +11,7 @@ public class MoveToClick : MonoBehaviour
    public LayerMask GroundLayer;
    public Transform player;
 
-   private Pathfinding _pathfinding;
+   private PathfindingService _pathfinding;
    private bool isMoving = false;
    private List<GridCell> path = new List<GridCell>();
 
@@ -25,7 +25,7 @@ public class MoveToClick : MonoBehaviour
    void Awake()
    {
       mainCamera = Camera.main;
-      _pathfinding = player.GetComponent<Pathfinding>();
+      _pathfinding = player.GetComponent<PathfindingService>();
    }
 
    // Update is called once per frame

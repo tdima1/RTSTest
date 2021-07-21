@@ -1,16 +1,13 @@
-﻿using Assets.Scripts.Movement;
-using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.Enemy
 {
    public class EnemyMovement : MonoBehaviour
    {
-      private Pathfinding _pathfinding;
+      private PathfindingService _pathfinding;
 
       [SerializeField]
       [Range(1, 10)]
@@ -21,7 +18,7 @@ namespace Assets.Scripts.Enemy
 
       private void Awake()
       {
-         _pathfinding = GetComponent<Pathfinding>();
+         _pathfinding = GetComponent<PathfindingService>();
       }
 
       private void Update()
@@ -75,7 +72,7 @@ namespace Assets.Scripts.Enemy
             snapToGrid.enabled = true;
          }
 
-         yield return new WaitForSecondsRealtime(2f);
+         yield return new WaitForSecondsRealtime(5f);
 
          snapToGrid.enabled = true;
          isMoving = false;

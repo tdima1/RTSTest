@@ -5,13 +5,16 @@ using Assets.Scripts.Grid.Constants;
 
 //[ExecuteInEditMode]
 //[SelectionBase]
-public class Pathfinding : MonoBehaviour
+public class PathfindingService : MonoBehaviour
 {
    public int CellSize = 1;
    public int MaxProximityOfDestination = 10;
    public LayerMask GroundLayer;
    public LayerMask ObstaclesLayer;
    public LayerMask TreeLayer;
+   public LayerMask EnemyLayer;
+
+
    public bool UseDiagonals = true;
 
    public Grid<GridCell> Grid { get; set; }
@@ -152,7 +155,7 @@ public class Pathfinding : MonoBehaviour
       var groundHit = Physics.Raycast(raySourcePosition, Vector3.down, out RaycastHit rayHitInfo, 120, GroundLayer | ObstaclesLayer);
 
       if(groundHit) {
-         bool inRangeOfObstacle = Physics.CheckSphere(rayHitInfo.point + Vector3.up, CellSize * 0.7f, ObstaclesLayer | TreeLayer);
+         bool inRangeOfObstacle = Physics.CheckSphere(rayHitInfo.point + Vector3.up, CellSize * 0.6f, ObstaclesLayer | TreeLayer | EnemyLayer);
 
          Vector3 worldPosition = new Vector3(rayHitInfo.point.x, rayHitInfo.point.y + 0.01f, rayHitInfo.point.z);
          Vector2Int gridPosition = new Vector2Int(i, j);

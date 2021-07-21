@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2017092669883564736}
   - component: {fileID: 9040226725673501801}
   - component: {fileID: -8318642356192786872}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: EnemyPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -71,6 +71,9 @@ MonoBehaviour:
   TreeLayer:
     serializedVersion: 2
     m_Bits: 1024
+  EnemyLayer:
+    serializedVersion: 2
+    m_Bits: 0
   UseDiagonals: 0
   cellPrefab: {fileID: 2686013703773775029, guid: 11123e23904f4b44280aa121dafd8d58,
     type: 3}
@@ -120,7 +123,7 @@ GameObject:
   - component: {fileID: 2017092670893339885}
   - component: {fileID: 2017092670893339890}
   - component: {fileID: 2017092670893339891}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
